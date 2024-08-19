@@ -1,25 +1,35 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
+import TableComponent from './components/TableComponent';
+import { Table } from './models/Table';
 
 function App() {
+  const [table, setTable] = useState(new Table());
+  const [tableWidth, setTableWidth] = useState(4);
+  const [tableHeight, setTableHeight] = useState(4);
+
+  function restart() {
+    const newTable = new Table();
+    newTable.initCells(tableWidth, tableHeight);
+    newTable.addRandomBlock();
+    setTable(newTable);
+  }
+
+  useEffect(() => {
+    restart();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <div className="table-container">
+        <TableComponent
+          width={tableWidth}
+          height={tableHeight}
+          table={table}
+          setTable={setTable}
+        />
+      </div>
+    </>
   );
 }
 
