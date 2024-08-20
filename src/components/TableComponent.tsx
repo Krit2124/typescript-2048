@@ -1,6 +1,7 @@
 import React, { FC, useEffect } from 'react';
 import { Table } from '../models/Table';
 import CellComponent from './CellComponent';
+import { Direction } from '../models/DirectionEnum';
 
 interface TableProps {
     width: number;
@@ -17,37 +18,82 @@ const TableComponent: FC<TableProps> = ({ width, height, table, setTable }) => {
 
     // Обработчик нажатия клавиш
     const handleKeyDown = (event: KeyboardEvent) => {
-        switch(event.key) {
+        switch(event.code) {
+        case "KeyW":
         case 'ArrowUp':
-            table.moveEveryCellUp();
+            table.moveCells(Direction.Up);
             updateTable();
             break;
+        case "KeyS":
         case 'ArrowDown':
-            table.moveEveryCellDown();
+            table.moveCells(Direction.Down);
             updateTable();
             break;
+        case "KeyA":
         case 'ArrowLeft':
-            table.moveEveryCellToLeft();
+            table.moveCells(Direction.Left);
             updateTable();
             break;
+        case "KeyD":
         case 'ArrowRight':
-            table.moveEveryCellToRight();
+            table.moveCells(Direction.Right);
             updateTable();
             break;
         default:
             break;
         }
     };
-
+    
     useEffect(() => {
-        // Добавляем обработчик при монтировании компонента
-        window.addEventListener('keydown', handleKeyDown);
+        let touchStartX: number | null = null;
+        let touchStartY: number | null = null;
 
-        // Удаляем обработчик при размонтировании компонента
-        return () => {
-        window.removeEventListener('keydown', handleKeyDown);
+        const handleTouchStart = (event: TouchEvent) => {
+            touchStartX = event.touches[0].clientX;
+            touchStartY = event.touches[0].clientY;
         };
-    }, [table])
+
+        const handleTouchEnd = (event: TouchEvent) => {
+            if (touchStartX === null || touchStartY === null) return;
+
+            const touchEndX = event.changedTouches[0].clientX;
+            const touchEndY = event.changedTouches[0].clientY;
+
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX > 50) {
+                    table.moveCells(Direction.Right);
+                } else if (deltaX < -50) {
+                    table.moveCells(Direction.Left);
+                }
+            } else {
+                if (deltaY > 50) {
+                    table.moveCells(Direction.Down);
+                } else if (deltaY < -50) {
+                    table.moveCells(Direction.Up);
+                }
+            }
+            updateTable();
+
+            // Сбрасываем координаты после обработки свайпа
+            touchStartX = null;
+            touchStartY = null;
+        };
+
+        // Добавляем обработчики
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('touchstart', handleTouchStart);
+        window.addEventListener('touchend', handleTouchEnd);
+
+        return () => {
+            // Удаляем обработчики при размонтировании компонента
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('touchstart', handleTouchStart);
+            window.removeEventListener('touchend', handleTouchEnd);
+        };
+    }, [table]);
     
     return (
         <div className='table' style={{width: width*100+10, height: height*100+10}}>
