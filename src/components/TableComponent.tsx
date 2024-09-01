@@ -1,7 +1,7 @@
 import React, { FC, useEffect } from 'react';
 import { Table } from '../models/Table';
 import CellComponent from './CellComponent';
-import { Direction } from '../models/DirectionEnum';
+import { Direction } from '../enums/DirectionEnum';
 
 interface TableProps {
     width: number;

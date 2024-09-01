@@ -1,6 +1,6 @@
 import { Block } from "./Block";
 import { Cell } from "./Cell";
-import { Direction } from "./DirectionEnum";
+import { Direction } from "../enums/DirectionEnum";
 
 export class Table {
     cells: Cell[][] = [];
@@ -128,6 +128,45 @@ export class Table {
         }
 
         if (wasMovement) {
+            this.addRandomBlock();
+            this.saveState();
+        }
+    }
+
+    public serialize(): string {
+        return JSON.stringify(this.cells.map(row => 
+            row.map(cell => cell.block ? cell.block.value : null)
+        ));
+    }
+    
+    public static deserialize(data: string): Table {
+        const table = new Table();
+        const parsedData = JSON.parse(data);
+        table.cells = parsedData.map((row: (number | null)[], rowIndex: number) =>
+            row.map((value: number | null, colIndex: number) => {
+                const cell = new Cell(colIndex, rowIndex);
+                if (value !== null) {
+                    cell.block = new Block(value);
+                }
+                return cell;
+            })
+        );
+        return table;
+    }
+
+    private saveState(): void {
+        const serializedTable = this.serialize();
+        localStorage.setItem('gameState', serializedTable);
+    }
+
+    public loadState(tableWidth: number, tableHeight: number): void {
+        const savedState = localStorage.getItem('gameState');
+        if (savedState) {
+            const table = Table.deserialize(savedState);
+            this.cells = table.cells;
+        } else {
+            // Если состояние не сохранено, инициируем таблицу заново
+            this.initCells(tableWidth, tableHeight);
             this.addRandomBlock();
         }
     }

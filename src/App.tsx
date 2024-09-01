@@ -10,8 +10,7 @@ function App() {
 
   function restart() {
     const newTable = new Table();
-    newTable.initCells(tableWidth, tableHeight);
-    newTable.addRandomBlock();
+    newTable.loadState(tableWidth, tableHeight);
     setTable(newTable);
   }
 
