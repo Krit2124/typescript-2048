@@ -4,6 +4,13 @@ import { Direction } from "../enums/DirectionEnum";
 
 export class Table {
     cells: Cell[][] = [];
+    width: number;
+    height: number;
+
+    constructor(width: number, height: number) {
+        this.width = width;
+        this.height = height;
+    }
 
     public initCells(width: number, height: number) {
         for (let i = 0; i < height; i++) {
@@ -15,8 +22,8 @@ export class Table {
         }
     }
 
-    public getCopyBoard(): Table {
-        const newTable = new Table();
+    public getCopyBoard(width: number, height: number): Table {
+        const newTable = new Table(width, height);
         newTable.cells = this.cells;
         return newTable;
     }
@@ -133,14 +140,16 @@ export class Table {
         }
     }
 
+    // Метод для преобразования состояния игры в json
     public serialize(): string {
         return JSON.stringify(this.cells.map(row => 
             row.map(cell => cell.block ? cell.block.value : null)
         ));
     }
     
-    public static deserialize(data: string): Table {
-        const table = new Table();
+    // Метод для преобразования json в состояние игры
+    public deserialize(data: string): Table {
+        const table = new Table(this.width, this.height);
         const parsedData = JSON.parse(data);
         table.cells = parsedData.map((row: (number | null)[], rowIndex: number) =>
             row.map((value: number | null, colIndex: number) => {
@@ -154,15 +163,20 @@ export class Table {
         return table;
     }
 
+    // Метод для сохранения состояния игры
     private saveState(): void {
         const serializedTable = this.serialize();
-        localStorage.setItem('gameState', serializedTable);
+        console.log(serializedTable);
+        
+        localStorage.setItem(`gameState${this.width}x${this.height}`, serializedTable);
     }
 
     public loadState(tableWidth: number, tableHeight: number): void {
-        const savedState = localStorage.getItem('gameState');
+        const savedState = localStorage.getItem(`gameState${this.width}x${this.height}`);
+        document.documentElement.style.setProperty('--columns', this.width.toString());
+        document.documentElement.style.setProperty('--rows', this.height.toString());
         if (savedState) {
-            const table = Table.deserialize(savedState);
+            const table = this.deserialize(savedState);
             this.cells = table.cells;
         } else {
             // Если состояние не сохранено, инициируем таблицу заново

@@ -12,7 +12,7 @@ interface TableProps {
 
 const TableComponent: FC<TableProps> = ({ width, height, table, setTable }) => {
     function updateTable() {
-        const newBoard = table.getCopyBoard();
+        const newBoard = table.getCopyBoard(width, height);
         setTable(newBoard);
     }
 
@@ -96,7 +96,7 @@ const TableComponent: FC<TableProps> = ({ width, height, table, setTable }) => {
     }, [table]);
     
     return (
-        <div className='table' style={{width: width*100+10, height: height*100+10}}>
+        <div className='table'>
             {table.cells.map((row, index) => 
                 <React.Fragment key={index}>
                     {row.map(cell => 
