@@ -46,11 +46,12 @@ function App() {
     <>
       <div className="table-container">
         <div className='settings-container'>
-          <div>
+          <div className='tableSize-container'>
             <div className='tableSize-input-container'>
               <label htmlFor="tw">Количество столбцов:</label>
               <input className='tableSize-input' id='tw' type="number" value={tableWidth} max={25} onChange={(e) => handleWidthChange(e)}/>
             </div>
+            
             <div className='tableSize-input-container'>
               <label htmlFor="th">Количество строк:</label>
               <input className='tableSize-input' id='th' type="number" value={tableHeight} max={25} onChange={(e) => handleHeightChange((e))}/>
