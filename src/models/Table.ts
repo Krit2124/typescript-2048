@@ -166,11 +166,12 @@ export class Table {
     // Метод для сохранения состояния игры
     private saveState(): void {
         const serializedTable = this.serialize();
-        console.log(serializedTable);
-        
+        const prevState = localStorage.getItem(`gameState${this.width}x${this.height}`);
+        prevState && localStorage.setItem(`prevGameState${this.width}x${this.height}`, prevState);
         localStorage.setItem(`gameState${this.width}x${this.height}`, serializedTable);
     }
 
+    // Метод для загрузки актуального состояния игры
     public loadState(tableWidth: number, tableHeight: number): void {
         const savedState = localStorage.getItem(`gameState${this.width}x${this.height}`);
         document.documentElement.style.setProperty('--columns', this.width.toString());
@@ -182,6 +183,19 @@ export class Table {
             // Если состояние не сохранено, инициируем таблицу заново
             this.initCells(tableWidth, tableHeight);
             this.addRandomBlock();
+        }
+    }
+
+    // Метод для отмены хода
+    public loadPrevState(table: Table): void {
+        const prevState = localStorage.getItem(`prevGameState${this.width}x${this.height}`);
+        if (prevState) {
+            const table = this.deserialize(prevState);
+            this.cells = table.cells;
+            localStorage.setItem(`gameState${this.width}x${this.height}`, prevState);
+            localStorage.removeItem(`prevGameState${this.width}x${this.height}`);
+        } else {
+            this.cells = table.cells;
         }
     }
 }
